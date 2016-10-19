@@ -24,7 +24,7 @@ module.exports.create = function(db, idBusiness, data,callback) {
           $currentDate: { "lastModified": true }
         },function(err, results) {
           module.exports.detail(db, idBusiness, idMenu, function(err,result,status){
-            callback(err, result, 200);
+            callback(err, result, 201);
           });
         }
       );
@@ -32,7 +32,7 @@ module.exports.create = function(db, idBusiness, data,callback) {
     });
 
   }else{
-    callback(null, 'Invalid Model', 201);
+    callback(null, 'Invalid Model', 205);
   }
 
 
@@ -50,7 +50,15 @@ module.exports.retrieve = function(db, idBusiness, callback) {
       { 
         "menus.structures" : 0
       },function(err, result) {
-          callback(err, result.menus, 200);
+          var status = 204;
+          var r = [];
+          result &&
+          result.menus && 
+          (function(){
+            r = result.menus;
+            status = 200;
+          })(); 
+          callback(err, r, status);
         }
     );
 };
@@ -59,16 +67,22 @@ module.exports.detail = function(db, idBusiness, idMenu, callback) {
    idBusiness = (hex.test(idBusiness))? ObjectId(idBusiness) : idBusiness;
    db.collection(collection).findOne(
       {
-        idBusiness:idBusiness,
-        menus : { $elemMatch: { idMenu :idMenu } }
+        idBusiness:idBusiness
       },
       {
-        "menus.structures" : 0
+        menus : { $elemMatch: { idMenu :idMenu } }
       }
       ,function(err, result) {
-          console.log(result);
-          result.menus = result.menus || [{}];
-          callback(err, result.menus[0],200);
+        var r = {};
+        var status = 204;
+          result && 
+          result.menus && 
+          result.menus[0] && 
+          (function(){
+            r = result.menus[0];
+            status = 200;
+          })();
+          callback(err, r,status);
         }
     );
 };
@@ -84,7 +98,7 @@ module.exports.update = function(db, idBusiness, idMenu, data, callback) {
           $set: {
             "menus.$": {
                 idMenu:       idMenu,
-                products:     result.products,
+                structures:   result.products,
                 name:         data.name         || result.name,
                 description:  data.description  || result.description
             }

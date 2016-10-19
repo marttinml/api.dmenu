@@ -27,8 +27,9 @@ module.exports.create = function(db, data, callback) {
           orders :  [],
           date :    new Date()
       }, function(err, result){
-          delete result.ops[0]._id;
-          callback(err, result.ops[0], 200);
+          module.exports.detail(db, idBusiness, function(err,result,status){
+            callback(err, result, 201);
+          });
       } );
       });
   }else{
@@ -39,20 +40,28 @@ module.exports.create = function(db, data, callback) {
 module.exports.retrieve = function(db, callback) {
    var result = [];
    var cursor = db.collection(collection).find({},{
-      idBusiness: true,
-      name : true,
+      idBusiness:   true,
+      name :        true,
       description : true,
-      img : true,
-      owner : true,
-      address : true,
-      menus: true,
-      _id:false
+      img :         true,
+      owner :       true,
+      address :     true,
+      menus:        true,
+      orders:       true,
+      _id:          false
    });
    cursor.each(function(err, doc) {
       if (doc != null) {
           result.push(doc);
       } else {
-         callback(err,result,200);
+        var r = [];
+        var status = 204;
+          result &&
+          (function(){
+            r = result;
+            status = 200;
+          })();
+         callback(err,result,status);
       }
    });
 };
@@ -70,14 +79,22 @@ module.exports.detail = function(db, idBusiness, callback) {
       owner :       true,
       address :     true,
       menus:        true,
+      orders:       true,
       _id:          false
     },function(err, result){
-      callback(err,result,200);
+      var r = {};
+        var status = 204;
+          result &&
+          (function(){
+            r = result;
+            status = 200;
+          })();
+      callback(err,r,200);
     });
 };
 
 module.exports.update = function(db, idBusiness, data, callback) {
-  module.exports.detail(db, id, function(err, result, status){
+  module.exports.detail(db, idBusiness, function(err, result, status){
   db.collection(collection).updateOne(
         { idBusiness : idBusiness },
         {
@@ -99,7 +116,7 @@ module.exports.update = function(db, idBusiness, data, callback) {
           },
           $currentDate: { "lastModified": true }
         },function(err, results) {
-          module.exports.detail(db, id, function(err,result,status){
+          module.exports.detail(db, idBusiness, function(err,result,status){
             callback(err, result, 200);
           });
         }

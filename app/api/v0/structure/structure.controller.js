@@ -67,8 +67,8 @@ module.exports.update = function (req, res) {
           assert.equal(null, err);
           //ejecute query
 
-          var idBusiness = Number(req.params.idBusiness);
-          var idMenu = Number(req.params.idMenu);
+          var idBusiness  = Number(req.params.idBusiness);
+          var idMenu      = Number(req.params.idMenu);
           var idStructure = Number(req.params.idStructure);
             StructureModel.update(db, idBusiness, idMenu, idStructure, req.body,function(err, result, status) {
                 assert.equal(err, null);
