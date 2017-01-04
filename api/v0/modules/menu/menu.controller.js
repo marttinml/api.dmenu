@@ -1,9 +1,9 @@
-var StructureModel 	= require('./structure.model'),
+var MenuModel 	= require('./menu.model'),
     assert      = require('assert'),
-    Connection  = require('../../../config/mongodb'),
-    Log         = require('../../../shared/log'),
+    Connection  = require('../../config/mongodb'),
+    Log         = require('../../shared/log'),
     merge       = require('merge'),
-    controller  = 'structure';
+    controller  = 'menu';
 
 module.exports.create = function (req, res) {
     var d   = new Date();
@@ -13,8 +13,7 @@ module.exports.create = function (req, res) {
         assert.equal(null, err);
         //ejecute query
         var idBusiness = Number(req.params.idBusiness);
-        var idMenu = Number(req.params.idMenu);
-        StructureModel.create(db, idBusiness, idMenu, req.body, function(err, result, status) {
+        MenuModel.create(db, idBusiness, req.body, function(err, result, status) {
             assert.equal(err, null);
             db.close();
             Log.logEnd({ start : start , response: result});
@@ -32,8 +31,7 @@ module.exports.retrieve = function (req, res) {
         assert.equal(null, err);
         //ejecute query
         var idBusiness = Number(req.params.idBusiness);
-        var idMenu = Number(req.params.idMenu);
-      StructureModel.retrieve(db, idBusiness, idMenu, function(err, result, status) {
+      MenuModel.retrieve(db, idBusiness, function(err, result, status) {
           db.close();
           Log.logEnd({ start : start , response: result});
           res.status(status).jsonp(result);
@@ -50,8 +48,7 @@ module.exports.detail = function (req, res) {
         //ejecute query
         var idBusiness = Number(req.params.idBusiness);
         var idMenu = Number(req.params.idMenu);
-        var idStructure = Number(req.params.idStructure);
-      StructureModel.detail(db, idBusiness, idMenu, idStructure, function(err, result, status) {
+      MenuModel.detail(db, idBusiness, idMenu, function(err, result, status) {
           db.close();
           Log.logEnd({ start : start , response: result});
           res.status(status).jsonp(result);
@@ -67,10 +64,10 @@ module.exports.update = function (req, res) {
           assert.equal(null, err);
           //ejecute query
 
-          var idBusiness  = Number(req.params.idBusiness);
-          var idMenu      = Number(req.params.idMenu);
-          var idStructure = Number(req.params.idStructure);
-            StructureModel.update(db, idBusiness, idMenu, idStructure, req.body,function(err, result, status) {
+          var idBusiness = Number(req.params.idBusiness);
+          var idMenu = Number(req.params.idMenu);
+
+            MenuModel.update(db, idBusiness, idMenu, req.body,function(err, result, status) {
                 assert.equal(err, null);
                 db.close();
                 Log.logEnd({ start : start , response: result});
@@ -91,8 +88,8 @@ module.exports.delete = function (req, res) {
 
           var idBusiness = Number(req.params.idBusiness);
           var idMenu = Number(req.params.idMenu);
-          var idStructure = Number(req.params.idStructure);
-          StructureModel.delete(db, idBusiness, idMenu, idStructure, function(err, result, status) {
+
+          MenuModel.delete(db, idBusiness, idMenu, function(err, result, status) {
               assert.equal(err, null);
               db.close();
               Log.logEnd({ start : start , response: result});

@@ -1,7 +1,7 @@
 var BusinessModel 	= require('./business.model'),
     assert      = require('assert'),
-    Connection  = require('../../../config/mongodb'),
-    Log         = require('../../../shared/log'),
+    Connection  = require('../../config/mongodb'),
+    Log         = require('../../shared/log'),
     merge       = require('merge'),
     controller  = 'business';
 

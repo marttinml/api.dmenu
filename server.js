@@ -1,6 +1,6 @@
-var MongoDB = require('./app/config/mongodb'),
-    express  = require('./app/config/express'),
-    app      = express();
+var MongoDB 	= require('./api/v0/config/mongodb'),
+    express  	= require('./api/v0/config/express'),
+    app      	= express();
 
 
 var port = process.env.PORT || 2000;

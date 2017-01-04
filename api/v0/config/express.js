@@ -27,12 +27,7 @@ module.exports = function(){
     app.use(bodyParser.json());
     app.use(methodOverride());
     
-    for (i in VERSIONS) {
-        require('../api' + VERSIONS[i] + 'test/test.router')(app);
-        require('../api' + VERSIONS[i] + 'business/business.router')(app);
-        require('../api' + VERSIONS[i] + 'menu/menu.router')(app);
-        require('../api' + VERSIONS[i] + 'structure/structure.router')(app);
-    }
+    require('./api.router')(app);
 
     return app;
 };

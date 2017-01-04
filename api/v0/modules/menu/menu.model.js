@@ -4,22 +4,46 @@ var hex = /[0-9A-Fa-f]{6}/g;
 var collection = "business";
 var sequenceMenu = "business.menu";
 
-module.exports.create = function(db, idBusiness, data,callback) {
-  var valid = true;
-  if(valid){
 
+var Menu = function(){
+  this.idMenu;
+  this.name;
+  this.description;
+  this.sections;
+  return this;
+};
+
+var parseDataToMenu = function(data){
+  var menu = new Menu();
+  menu.name = data.name;
+  menu.description = data.description;
+  menu.sections = [];
+    for(var i in data.sections){
+      var section = {};
+      section.name = data.sections[i].name
+      section.description = data.sections[i].description
+      section.products = [];
+      for(var j in data.sections[i].products){
+        var product = {};
+        product.idProduct = data.sections[i].products[j].idProduct;
+        section.products.push(product);
+      }
+      menu.sections.push(section);
+    }
+    return menu;
+};
+
+
+module.exports.create = function(db, idBusiness, data,callback) {
+
+    var menu = parseDatatoMenu(data);
     autoIncrement.getNextSequence(db, sequenceMenu, function (err, idMenu) {
+      menu.idMenu = idMenu;
       db.collection(collection).updateOne( 
         { idBusiness : idBusiness },
         {
           $addToSet: {
-            menus: 
-              {
-                idMenu:       idMenu,
-                name:         data.name,
-                description:  data.description,
-                structures:     []  
-              }
+            menus: menu
           },
           $currentDate: { "lastModified": true }
         },function(err, results) {
@@ -30,13 +54,6 @@ module.exports.create = function(db, idBusiness, data,callback) {
       );
       
     });
-
-  }else{
-    callback(null, 'Invalid Model', 205);
-  }
-
-
-
 };
 
 module.exports.retrieve = function(db, idBusiness, callback) {
