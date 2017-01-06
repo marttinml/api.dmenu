@@ -1,8 +1,8 @@
 var autoIncrement     = require("mongodb-autoincrement"),
     collection        = "business",
-    sequenceBusiness  = "business";
-
-var self = module.exports;
+    sequenceBusiness  = "business",
+    Response           = require("../../shared/response");
+    self              = module.exports;
 
 // Schema
 self.BussinessSchema = function(data){
@@ -39,29 +39,6 @@ self.parseDataToBusiness = function(data, business){
   return business;
 };
 
-// response
-self.response = function(){
-  this.success;
-  this.error = {};
-  this.error.code;
-  this.error.message;
-  this.error.dbMessage;
-  this.data;
-  this.successful = function(data){
-    this.success    = true;
-    this.data       = data || {};
-    delete this.error;
-  }
-  this.failed = function(dbMessage, code, message){
-    this.success          = false;
-    this.error.dbMessage  = dbMessage || {};
-    this.error.code       = code      || "202";
-    this.error.message    = message   || "Not fount";
-    
-  }
-  return this;
-};
-
 // C
 self.create = function(db, data, callback) {
     var business = self.parseDataToBusiness(data);
@@ -69,7 +46,7 @@ self.create = function(db, data, callback) {
     business.idBusiness = idBusiness;
     var handler = function(err, results){
       self.detail(db, idBusiness, function(err,result,status){
-        var response = new self.response(result);
+        var response = new Response(result);
         results.result.n ? response.successful(result) : response.failed(results.result);
           callback(err, response, status);
         });
@@ -97,7 +74,7 @@ self.update = function(db, idBusiness, data, callback) {
     business = self.parseDataToBusiness(data, business);
     var handler = function(err, results) {
         self.detail(db, idBusiness, function(err,result,status){
-          var response = new self.response();
+          var response = new Response();
           results.result.n ? response.successful(result) : response.failed(results.result);
           callback(err, response, status);
         });
@@ -125,7 +102,7 @@ self.detail = function(db, idBusiness, callback) {
 self.delete = function(db, idBusiness, callback) {
   self.detail(db, idBusiness, function(err, result, status){
     var handler = function(err, results) {
-            var response = new self.response();
+            var response = new Response();
             results.result.n ? response.successful(result) : response.failed(results.result);
             callback(err, response, status);
         };

@@ -1,4 +1,6 @@
-exports.logStart = function(val){
+self = module.exports;
+
+self.logStart = function(val){
     console.log('\n\n············································································ ' + val.d);
     console.log(val.controller+'.controller > '+val.method+'()');
     console.log('············································································ ');
@@ -8,7 +10,7 @@ exports.logStart = function(val){
     console.log('   ' + JSON.stringify(val.body));
         console.log('   ············································································\n');
 };
-exports.logEnd = function(val){
+self.logEnd = function(val){
     d       = new Date()
     end     = d.getMilliseconds();
     val.d   =  end - val.start;
@@ -16,7 +18,7 @@ exports.logEnd = function(val){
     console.log('   <<< Data Response');
     console.log('············································································ Time: '+val.d+' ms');
 };
-exports.buildToken = function(){
+self.buildToken = function(){
     var d   = new Date();
     return d.getFullYear() +""+ d.getMonth() +""+ d.getDate() +""+ d.getHours() +""+ d.getMinutes() +""+ d.getSeconds() +""+ d.getMilliseconds();
 };
