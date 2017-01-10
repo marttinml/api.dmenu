@@ -41,12 +41,12 @@ self.retrieve = function (req, res) {
 self.detail = function (req, res) {
     var d   = new Date();
         start   = d.getMilliseconds();
-        Log.logStart({controller : controller, method:controller+'.detail', d : d, body: req.params.idBusiness});
+        Log.logStart({controller : controller, method:controller+'.detail', d : d, body: req.params.businessId});
     Connection.ejecute(function(err, db){
         assert.equal(null, err);
         //ejecute query
-         var idBusiness = Number(req.params.idBusiness);
-      BusinessModel.detail(db, idBusiness, function(err,result,status) {
+         var businessId = Number(req.params.businessId);
+      BusinessModel.detail(db, businessId, function(err,result,status) {
           db.close();
           Log.logEnd({ start : start , response: result});
           res.status(status).jsonp(result);
@@ -61,8 +61,8 @@ self.update = function (req, res) {
   Connection.ejecute(function(err, db){
         assert.equal(null, err);
         //ejecute query
-          var idBusiness = Number(req.params.idBusiness);
-          BusinessModel.update(db, idBusiness, req.body, function(err, result, status) {
+          var businessId = Number(req.params.businessId);
+          BusinessModel.update(db, businessId, req.body, function(err, result, status) {
               assert.equal(err, null);
               db.close();
               Log.logEnd({ start : start , response: result});
@@ -76,12 +76,12 @@ self.update = function (req, res) {
 self.delete = function (req, res) {
     var d   = new Date();
     start   = d.getMilliseconds();
-    Log.logStart({controller : controller, method:controller+'.delete', d : d , body:req.params.idBusiness});
+    Log.logStart({controller : controller, method:controller+'.delete', d : d , body:req.params.businessId});
   Connection.ejecute(function(err, db){
         assert.equal(null, err);
         //ejecute query
-        var idBusiness = Number(req.params.idBusiness);
-          BusinessModel.delete(db, idBusiness, function(err, result, status) {
+        var businessId = Number(req.params.businessId);
+          BusinessModel.delete(db, businessId, function(err, result, status) {
               assert.equal(err, null);
               db.close();
               Log.logEnd({ start : start , response: result});

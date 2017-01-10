@@ -15,7 +15,7 @@ self.response = function(){
   this.failed = function(dbMessage, code, message){
     this.success          = false;
     this.error.dbMessage  = dbMessage || {};
-    this.error.code       = code      || "202";
+    this.error.code       = code      || 202;
     this.error.message    = message   || "Not fount";
     
   }
