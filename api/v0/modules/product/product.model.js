@@ -1,11 +1,12 @@
 var autoIncrement = require("mongodb-autoincrement"),
+  Response        = require("../../shared/response").response,
   collection      = "business"
   sequenceProduct = "business.product",
-  Response        = require("../../shared/response").response,
   self            = module.exports;
 
+// Schema
 self.ProductSchema = function(){
-  this.idProduct;
+  this.productId;
   this.name;
   this.description;
   this.price;
@@ -13,9 +14,10 @@ self.ProductSchema = function(){
   return this;
 };
 
+// parse
 var parseDataToProduct = function(data, product){
-  var product         = product           || new self.ProductSchema();
-  product.idProduct   = data.idProduct    || product.idProduct;
+  product = product || new self.ProductSchema();
+  product.productId   = data.productId    || product.productId;
   product.name        = data.name         || product.name;
   product.description = data.description  || product.description;
   product.price       = data.price        || product.price;
@@ -23,119 +25,81 @@ var parseDataToProduct = function(data, product){
     return product;
 };
 
-
-self.create = function(db, idBusiness, data,callback) {
-
-    var product = parseDataToProduct(data);
-    autoIncrement.getNextSequence(db, sequenceProduct, function (err, idProduct) {
-      product.idProduct = idProduct;
-      db.collection(collection).updateOne( 
-        { idBusiness : idBusiness },
-        {
-          $addToSet: {
-            products: product
-          },
-          $currentDate: { "lastModified": true }
-        },function(err, results) {
-          module.exports.detail(db, idBusiness, idProduct, function(err,result,status){
-            var response = new Response(result);
-            results.result.n ? response.successful(result) : response.failed(results.result);
-            callback(err, response, status);
-          });
-        }
-      );
-      
+// C
+self.create = function(db, businessId, data,callback) {
+    var product = parseDataToProduct(data),
+      handler;
+    autoIncrement.getNextSequence(db, sequenceProduct, function (err, productId) {
+      product.productId = productId;
+      handler = function(err, results) {
+        module.exports.detail(db, businessId, productId, function(err,result,status){
+          var response = new Response(result);
+          results.result.n ? response.successful(result) : response.failed(results.result);
+          callback(err, response, status);
+        });
+      };
+      db.collection(collection).updateOne({ businessId : businessId },{ $addToSet: {products: product},$currentDate: { "lastModified": true }},handler);
     });
 };
-
-self.retrieve = function(db, idBusiness, callback) {
-   var result = [];
-   console.log(idBusiness);
+// R
+self.retrieve = function(db, businessId, callback) {
+   var result = [],
+      status = 200;
    var cursor = db.collection(collection).findOne(
       {
-        idBusiness:idBusiness
+        businessId:businessId
       },
-      { 
-        "menus.structures" : 0
-      },function(err, result) {
-          var status = 204;
-          var r = [];
-          result &&
-          result.products && 
-          (function(){
-            r = result.products;
-            status = 200;
-          })(); 
-          callback(err, r, status);
-        }
-    );
-};
-
-self.detail = function(db, idBusiness, idProduct, callback) {
-   db.collection(collection).findOne(
-      {
-        idBusiness:idBusiness
-      },
-      {
-        products : { $elemMatch: { idProduct :idProduct } }
-      }
-      ,function(err, result) {
-        var r = {};
-        var status = 204;
-          result && 
-          result.products && 
-          result.products[0] && 
-          (function(){
-            r = result.products[0];
-            status = 200;
+      function(err, result) {
+          result = result || { products: [] };
+          result.products = result.products || [];
+          !result.products.length && (function(){
+            status = 202;
           })();
-          callback(err, r,status);
+          callback(err, result.products, status);
         }
     );
 };
 
-self.update = function(db, idBusiness, idMenu, data, callback) {
-  idBusiness = (hex.test(idBusiness))? ObjectId(idBusiness) : idBusiness;
-  module.exports.detail(db, idBusiness, idMenu, function(err,result,status){
-  db.collection(collection).updateOne(
-        { idBusiness : idBusiness,
-          menus : { $elemMatch: { idMenu :idMenu } },
-        },
-        {
-          $set: {
-            "menus.$": {
-                idMenu:       idMenu,
-                structures:   result.products,
-                name:         data.name         || result.name,
-                description:  data.description  || result.description
-            }
-          },
-          $currentDate: { "lastModified": true }
-        },function(err, results) {
-          console.log(results);
-            module.exports.detail(db, idBusiness, idMenu, function(err,result,status){
-              callback(err, result, 200);
-            });
-        }
-    );
+// U
+self.update = function(db, businessId, productId, data, callback) {
+  var handler,response;
+  self.detail(db, businessId, productId, function(err,product,status){
+  product = parseDataToProduct(data,product);
+  handler = function(err, results) {
+      module.exports.detail(db, businessId, productId, function(err,result,status){
+        response = new Response();
+        results.result.n ? response.successful(result) : response.failed(results.result);
+        callback(err, response, status);
+      });
+  };
+  db.collection(collection).updateOne({ businessId : businessId, products : { $elemMatch: { productId :productId } } },{ $set: { "products.$": product }, $currentDate: { "lastModified": true } }, handler);
   });
 };
-
-self.delete = function(db, idBusiness, idMenu, callback) {
-  idBusiness = (hex.test(idBusiness))? ObjectId(idBusiness) : idBusiness;
-  module.exports.detail(db, idBusiness, idMenu, function(err,result,status){
-    db.collection(collection).updateOne(
-          { idBusiness : idBusiness,
-            menus : { $elemMatch: { idMenu :idMenu } },
-          },
-          {
-            $pull: {
-              menus: { idMenu: idMenu}
-            }
-          },function(err, results) {
-                callback(err, result, 200);
-          }
-      );
+// D
+self.detail = function(db, businessId, productId, callback) {
+  var result = {},
+      status = 200,
+      handler;
+  handler = function(err, result) {
+      result = result || { products: [{}] };
+      result.products = result.products || [{}];
+      !result.products[0] && (function(){
+        status = 202;
+      })();
+      callback(err, result.products[0],status);
+  };
+  db.collection(collection).findOne({ businessId:businessId },{ products: { $elemMatch: { productId : productId } } },handler);
+};
+// D
+self.delete = function(db, businessId, productId, callback) {
+  var handler, response;
+  self.detail(db, businessId, productId, function(err,result,status){
+    handler = function(err, results) {
+      response = new Response();
+      results.result.n ? response.successful(result) : response.failed(results.result);
+      callback(err, response, status);
+    };
+    db.collection(collection).updateOne({ businessId: businessId, products: { $elemMatch: { productId: productId } },},{ $pull: { products: { productId: productId } } },handler);
   });
    
 };

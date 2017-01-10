@@ -13,9 +13,9 @@ module.exports = function (app) {
 
     app.route('/v0/business/:businessId/product').post(Product.create);
     app.route('/v0/business/:businessId/product').get(Product.retrieve);
-    app.route('/v0/business/:businessId/product/:idProduct').get(Product.detail);
-    app.route('/v0/business/:businessId/product/:idProduct').put(Product.update);
-    app.route('/v0/business/:businessId/product/:idProduct').delete(Product.delete);
+    app.route('/v0/business/:businessId/product/:productId').get(Product.detail);
+    app.route('/v0/business/:businessId/product/:productId').put(Product.update);
+    app.route('/v0/business/:businessId/product/:productId').delete(Product.delete);
 
     app.route('/v0/business/:businessId/menu').post(Menu.create);
     app.route('/v0/business/:businessId/menu').get(Menu.retrieve);

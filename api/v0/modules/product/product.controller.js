@@ -13,8 +13,8 @@ self.create = function (req, res) {
 	Connection.ejecute(function(err, db){
         assert.equal(null, err);
         //ejecute query
-        var idBusiness = Number(req.params.idBusiness);
-        ProductModel.create(db, idBusiness, req.body, function(err, result, status) {
+        var businessId = Number(req.params.businessId);
+        ProductModel.create(db, businessId, req.body, function(err, result, status) {
             assert.equal(err, null);
             db.close();
             Log.logEnd({ start : start , response: result});
@@ -31,8 +31,8 @@ self.retrieve = function (req, res) {
     Connection.ejecute(function(err, db){
         assert.equal(null, err);
         //ejecute query
-        var idBusiness = Number(req.params.idBusiness);
-      ProductModel.retrieve(db, idBusiness, function(err, result, status) {
+        var businessId = Number(req.params.businessId);
+      ProductModel.retrieve(db, businessId, function(err, result, status) {
           db.close();
           Log.logEnd({ start : start , response: result});
           res.status(status).jsonp(result);
@@ -47,9 +47,9 @@ self.detail = function (req, res) {
     Connection.ejecute(function(err, db){
         assert.equal(null, err);
         //ejecute query
-        var idBusiness = Number(req.params.idBusiness);
-        var idProduct = Number(req.params.idProduct);
-      ProductModel.detail(db, idBusiness, idProduct, function(err, result, status) {
+        var businessId = Number(req.params.businessId);
+        var productId = Number(req.params.productId);
+      ProductModel.detail(db, businessId, productId, function(err, result, status) {
           db.close();
           Log.logEnd({ start : start , response: result});
           res.status(status).jsonp(result);
@@ -65,10 +65,10 @@ self.update = function (req, res) {
           assert.equal(null, err);
           //ejecute query
 
-          var idBusiness = Number(req.params.idBusiness);
-          var idProduct = Number(req.params.idProduct);
+          var businessId = Number(req.params.businessId);
+          var productId = Number(req.params.productId);
 
-            ProductModel.update(db, idBusiness, idProduct, req.body,function(err, result, status) {
+            ProductModel.update(db, businessId, productId, req.body,function(err, result, status) {
                 assert.equal(err, null);
                 db.close();
                 Log.logEnd({ start : start , response: result});
@@ -87,10 +87,10 @@ self.delete = function (req, res) {
         assert.equal(null, err);
         //ejecute query
 
-          var idBusiness = Number(req.params.idBusiness);
-          var idProduct = Number(req.params.idProduct);
+          var businessId = Number(req.params.businessId);
+          var productId = Number(req.params.productId);
 
-          ProductModel.delete(db, idBusiness, idProduct, function(err, result, status) {
+          ProductModel.delete(db, businessId, productId, function(err, result, status) {
               assert.equal(err, null);
               db.close();
               Log.logEnd({ start : start , response: result});

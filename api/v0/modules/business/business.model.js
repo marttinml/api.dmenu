@@ -20,6 +20,9 @@ self.BussinessSchema = function(data){
 
 // parse
 self.parseDataToBusiness = function(data, business){
+  data.img      = data.img || {};
+  data.address  = data.address || {};
+
   business = business || new self.BussinessSchema();
   business.businessId     = business.businessId || business.businessId;
   business.name           = data.name           || business.name;
@@ -43,10 +46,11 @@ self.parseDataToBusiness = function(data, business){
 
 // C
 self.create = function(db, data, callback) {
-    var business = self.parseDataToBusiness(data);
+    var business = self.parseDataToBusiness(data),
+        handler;
     autoIncrement.getNextSequence(db, sequenceBusiness, function (err, businessId) {
     business.businessId = businessId;
-    var handler = function(err, results){
+      handler = function(err, results){
       self.detail(db, businessId, function(err,result,status){
         var response = new Response(result);
         results.result.n ? response.successful(result) : response.failed(results.result);
@@ -58,50 +62,47 @@ self.create = function(db, data, callback) {
 };
 // R
 self.retrieve = function(db, callback) {
-  var result = [];
-  var status = 200;
-  var cursor = db.collection(collection).find({},{ _id: false });
-  cursor.each(function(err, doc) {
-    if (doc != null) {
-        result.push(doc);
-    } else {
+  var result = [],
+      status = 200,
+      handler;
+  
+  handler = function(err, result){
       !result.length && (function(){
-        status = 202;
-        result = [];
-      })();
-      callback(err,result,status);
-    }
-  });
+          status = 202;
+          result = [];
+        })();
+        callback(err,result,status);
+    };
+  db.collection(collection).find({},{ _id: false }).toArray(handler);
 };
 // U
 self.update = function(db, businessId, data, callback) {
+  var handler;
   self.detail(db, businessId, function(err, business, status){
     business = self.parseDataToBusiness(data, business);
-    var handler = function(err, results) {
-        self.detail(db, businessId, function(err,result,status){
-          var response = new Response();
-          results.result.n ? response.successful(result) : response.failed(results.result);
-          callback(err, response, status);
-        });
-      };
+    handler = function(err, results) {
+      self.detail(db, businessId, function(err,result,status){
+        var response = new Response();
+        results.result.n ? response.successful(result) : response.failed(results.result);
+        callback(err, response, status);
+      });
+    };
     db.collection(collection).updateOne( { businessId : businessId }, business, handler);
   });
 };
 // D
 self.detail = function(db, businessId, callback) {
-   var result = {};
-   var status = 200;
-   var cursor = db.collection(collection).findOne(
-    { businessId : businessId },
-    {
-      _id:          false
-    },function(err, result){
-      !result && (function(){
-        status = 202;
-        result = {};
-      })();
-      callback(err,result,status);
-    });
+   var result = {},
+      status = 200,
+      handler;
+  handler = function(err, result){
+    !result && (function(){
+      status = 202;
+      result = {};
+    })();
+    callback(err,result,status);
+  };
+  db.collection(collection).findOne({ businessId : businessId }, { _id:false },handler);
 };
 // D
 self.delete = function(db, businessId, callback) {
